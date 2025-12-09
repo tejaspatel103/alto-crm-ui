@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  border-right: 1px solid #ddd;
+  padding: 12px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  margin: 10px;
+}
+
+.grid {
+  flex: 1;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.grid-table-wrapper {
+  overflow: auto;
+  border: 1px solid #ddd;
+}
+
+.grid-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
+
+.grid-table th,
+.grid-table td {
+  border-bottom: 1px solid #eee;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+
+.grid-table thead {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+}
