@@ -10,8 +10,9 @@ export default function LeadGrid() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editing, setEditing] = useState(null);
-  const [cellInput, setCellInput] = useState("");
+ const [inputDirty, setInputDirty] = useState(false);
+const [validationErrors, setValidationErrors] = useState({});
+const debounceRef = useRef(null);
   const [savingCells, setSavingCells] = useState({});
   const [cellErrors, setCellErrors] = useState({});
   const [lastEdit, setLastEdit] = useState(null);
