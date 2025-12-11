@@ -71,14 +71,67 @@ const debounceRef = useRef(null);
 
   async function commitEdit(leadId, fieldKey) {
     const key = makeCellKey(leadId, fieldKey);
+
+    // 🔴 Step 7.3 — STOP if validation error exists
+    const err = validationErrors[key];
+    if (err) {
+      console.warn("⛔ Blocked save due to validation:", err);
+      return; // Do NOT save, stays in edit mode
+    }
+
     const oldValue =
       leads.find(l => l.id === leadId)?.fields?.[fieldKey]?.value ?? "";
     const newValue = cellInput;
 
+    // No change -> exit
     if (String(oldValue ?? "") === String(newValue ?? "")) {
       setEditing(null);
       return;
     }
+
+    // mark saving
+    setSavingCells(prev => ({ ...prev, [key]: true }));
+    setCellErrors(prev => {
+      const copy = { ...prev };
+      delete copy[key];
+      return copy;
+    });
+
+    try {
+      // call PATCH API: send only the changed field
+      await apiPatch(`/api/leads/${leadId}`, { [fieldKey]: newValue });
+
+      // update local state
+      setLeads(prevLeads =>
+        prevLeads.map(l => {
+          if (l.id !== leadId) return l;
+          const newFields = { ...l.fields };
+          newFields[fieldKey] = {
+            ...(newFields[fieldKey] || {}),
+            value: newValue,
+            source: "manual",
+            locked: false
+          };
+          return { ...l, fields: newFields };
+        })
+      );
+
+      // allow undo
+      setLastEdit({ leadId, fieldKey, oldValue, newValue });
+    } catch (err) {
+      console.error(err);
+      setCellErrors(prev => ({ ...prev, [key]: err.message || "Save failed" }));
+    } finally {
+      setSavingCells(prev => {
+        const copy = { ...prev };
+        delete copy[key];
+        return copy;
+      });
+
+      setEditing(null);
+    }
+}
+
 
     setSavingCells(prev => ({ ...prev, [key]: true }));
     setCellErrors(prev => {
