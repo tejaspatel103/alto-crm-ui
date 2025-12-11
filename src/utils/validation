@@ -1,1 +1,10 @@
+export function isValidEmail(value) {
+  if (!value) return true; // empty allowed
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+export function isValidPhone(value) {
+  if (!value) return true; // empty allowed
+  return /^[0-9()+\-\s]{6,20}$/.test(value.trim());
+}
 
