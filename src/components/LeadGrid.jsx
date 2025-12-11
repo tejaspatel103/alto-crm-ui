@@ -1,3 +1,4 @@
+import { isValidEmail, isValidPhone } from "../utils/validation";
 import { useEffect, useState, useRef } from "react";
 import { apiGet, apiPatch } from "../api/client";
 
@@ -189,7 +190,36 @@ const debounceRef = useRef(null);
           <input
             ref={inputRef}
             value={cellInput}
-            onChange={e => setCellInput(e.target.value)}
+           onChange={(e) => {
+  const v = e.target.value;
+  setCellInput(v);
+  setInputDirty(true);
+
+  // Clear existing debounce
+  if (debounceRef.current) clearTimeout(debounceRef.current);
+
+  // Validate
+  let err = null;
+  if (f.id.toLowerCase().includes("email") && !isValidEmail(v)) {
+    err = "Invalid email";
+  }
+  if (f.id.toLowerCase().includes("phone") && !isValidPhone(v)) {
+    err = "Invalid phone";
+  }
+
+  setValidationErrors((prev) => ({
+    ...prev,
+    [makeCellKey(lead.id, f.id)]: err,
+  }));
+
+  // Only autosave if no validation errors
+  if (!err) {
+    debounceRef.current = setTimeout(() => {
+      commitEdit(lead.id, f.id);
+    }, 600);
+  }
+}}
+
             onBlur={() => commitEdit(lead.id, f.id)}
             onKeyDown={e => {
               if (e.key === "Enter") {
@@ -199,7 +229,11 @@ const debounceRef = useRef(null);
                 setEditing(null);
               }
             }}
-            style={{ minWidth: 120 }}
+            style={{
+  minWidth: 120,
+  border: validationErrors[makeCellKey(lead.id, f.id)] ? "1px solid red" : "1px solid #ccc",
+}}
+
           />
           {saving && <span>Saving…</span>}
           {err && <span style={{ color: "red" }}>{err}</span>}
