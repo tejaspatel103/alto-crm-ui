@@ -99,49 +99,6 @@ const debounceRef = useRef(null);
     });
 
     try {
-      // call PATCH API: send only the changed field
-      await apiPatch(`/api/leads/${leadId}`, { [fieldKey]: newValue });
-
-      // update local state
-      setLeads(prevLeads =>
-        prevLeads.map(l => {
-          if (l.id !== leadId) return l;
-          const newFields = { ...l.fields };
-          newFields[fieldKey] = {
-            ...(newFields[fieldKey] || {}),
-            value: newValue,
-            source: "manual",
-            locked: false
-          };
-          return { ...l, fields: newFields };
-        })
-      );
-
-      // allow undo
-      setLastEdit({ leadId, fieldKey, oldValue, newValue });
-    } catch (err) {
-      console.error(err);
-      setCellErrors(prev => ({ ...prev, [key]: err.message || "Save failed" }));
-    } finally {
-      setSavingCells(prev => {
-        const copy = { ...prev };
-        delete copy[key];
-        return copy;
-      });
-
-      setEditing(null);
-    }
-}
-
-
-    setSavingCells(prev => ({ ...prev, [key]: true }));
-    setCellErrors(prev => {
-      const copy = { ...prev };
-      delete copy[key];
-      return copy;
-    });
-
-    try {
       await apiPatch(`/api/leads/${leadId}`, { [fieldKey]: newValue });
 
       setLeads(prevLeads =>
